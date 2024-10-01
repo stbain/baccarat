@@ -9,7 +9,6 @@ import csv
 from baccarat_lib.baccarat import Shoe
 from baccarat_strategies.pbppbb import PBPPBBStrategy
 from betting_strategies.martingale import MartingaleProgression
-from unittest import result
 
 ### LOGGING SETUP ###
 # Create some log files for this simulation in the ./logs directory.
