@@ -1,4 +1,5 @@
-# Simulator to combine the following stratgies and track results by the shoe:
+# Simulator to combine the following stratgies and track the results over consecutive shoes
+# rather than starting with the same amount for each shoe:
 # 
 #   -- Baccarat Strategy: PBPPBB
 #   -- Betting Strategy: Martingale
@@ -89,15 +90,18 @@ betting_strategy = MartingaleProgression(base_bet=1)
 betting_strategy_name = betting_strategy.name
 
 combined_strategy = CombinedStrategy(pattern_strategy, betting_strategy)
-num_shoes = 100000 # Number of shoes to run this simulation for
-starting_bankroll = 1000 # Starting bankroll for each shoe
+num_hands = 1000000 # Number of hands to run this simulation for
+hands_played = 0
+starting_bankroll = 1000 # Starting bankroll 
+my_bankroll = starting_bankroll
 
 print("Starting simulation...")
 
-for _ in range(num_shoes):
-    my_bankroll = starting_bankroll
+while hands_played < num_hands:
     my_shoe = Shoe()
     my_shoe.shuffle()
+    my_shoe.burn()
+
     card_sequence = my_shoe.__str__()
 
     # Deal out the entire shoe to capture the results
@@ -105,10 +109,10 @@ for _ in range(num_shoes):
         my_shoe.deal_hand()
 
     # Add this shoe to the shoe log file csv: hexhash, shoe card sequence
-    shoe_log_writer.writerow([my_shoe.hexhash(), card_sequence, my_shoe.results]) 
+    # shoe_log_writer.writerow([my_shoe.hexhash(), card_sequence, my_shoe.results]) 
 
     # Now we can use the my_shoe.results to run our combined strategy
-    combined_strategy.reset()
+    # combined_strategy.reset()
 
     # Set up variables to count our wins, losses, and ties for the shoe
     my_shoe_wins = 0
@@ -118,10 +122,21 @@ for _ in range(num_shoes):
     # Set up variables to track the highest and lowest bankroll for the shoe
     highest_bankroll = starting_bankroll
     lowest_bankroll = starting_bankroll
+    highest_bet = 0
+
+    # If we're broke, we need to call it quits
+    (bet_side, bet_amount) = combined_strategy.get_bet()
+    if my_bankroll < bet_amount:
+        break
 
     # Run the combined strategy for each dealt hand result in the shoe
     for result in my_shoe.results:
+        hands_played += 1
+
         (bet_side, bet_amount) = combined_strategy.get_bet()
+
+        if bet_amount > highest_bet:
+            highest_bet = bet_amount
 
         # If our bankroll isn't big enough for our bet_amount, we are done with this shoe
         if my_bankroll < bet_amount:
@@ -135,7 +150,7 @@ for _ in range(num_shoes):
             if result == 'B':
                 my_bankroll += bet_amount * 0.95
             else:
-                my_bankroll += bet_amount
+                my_bankroll += bet_amount 
             
             if my_bankroll > highest_bankroll:
                 highest_bankroll = my_bankroll
@@ -160,12 +175,17 @@ for _ in range(num_shoes):
         #       for every 100,000 shoes you deal.
         #
         # To enable hand logging, comment out the following line
-        # hands_log_writer.writerow([my_shoe.hexhash(), bet_side, bet_amount, my_result, f"{my_bankroll:.2f}", my_shoe_wins, my_shoe_losses, my_shoe_ties])
+        # For the long version, we'll count the hands instead of using the hexhash
+        hands_log_writer.writerow([hands_played, bet_side, bet_amount, my_result, f"{my_bankroll:.2f}", my_shoe_wins, my_shoe_losses, my_shoe_ties])
 
         combined_strategy.update(my_result)
         
     # Log the shoe results to the simulations log
-    simulations_log_writer.writerow([my_shoe.hexhash(), betting_strategy_name, pattern_strategy_name, f"{starting_bankroll:.2f}", f"{my_bankroll:.2f}", f"{highest_bankroll:.2f}", f"{lowest_bankroll:.2f}", my_shoe_wins, my_shoe_losses, my_shoe_ties])
+    # For the long game, we are gong to log the hands_played rather than the hexhash
+    simulations_log_writer.writerow([hands_played, betting_strategy_name, pattern_strategy_name, f"{starting_bankroll:.2f}", f"{my_bankroll:.2f}", f"{highest_bankroll:.2f}", f"{lowest_bankroll:.2f}", my_shoe_wins, my_shoe_losses, my_shoe_ties])
+
+    # Hand our current bankroll amount off to the next shoe
+    starting_bankroll = my_bankroll
 
         
-    
+print(f"Simulation complete.\nFinal bankroll: ${my_bankroll:.2f}\nHighest bet: ${highest_bet:.2f}")    
