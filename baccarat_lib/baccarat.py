@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
-# Baccarat Simulator
+# Baccarat Simulator Library
 # @author Stuart Bain <gunfighter@gmail.com>
 # 
-# This is a quick, down and dirty script to build a baccarat simulator for 
+# This is a quick, down and dirty library to build a baccarat simulator for 
 # testing betting strategies and theories. It is for Banco Punto (also known as
 # North American baccarat) and NOT Chemin de Fer (which is the version of 
 # baccarat played in Europe and popularized by Ian Fleming's James Bond series.).
@@ -51,7 +49,6 @@ class Deck:
     
 class Shoe:
     """Baccarat shoe"""
-    # TODO: Define number of decks as a constant for shoe creation
     
     def __init__(self, decks = 8): # Default to 8 decks
         self.decks = decks
@@ -87,7 +84,7 @@ class Shoe:
         already been calculated."""
         
         stirrup = self.__str__()
-        return hashlib.sha512(stirrup).hexdigest()
+        return hashlib.sha512(stirrup.encode('utf-8')).hexdigest()
     
     def burn(self):
         """Draw the first card out of the shoe and burn the appropriate number of 
@@ -175,7 +172,7 @@ class Shoe:
                 ## Baccarat Drawing Rules
                 ## Banker's
                 ## Score                       Player's Third Card
-                ##   0	 1	 2	 3	 4	 5	 6	 7	 8	 9
+                ##       0	 1	 2	 3	 4	 5	 6	 7	 8	 9
                 
                 ##   2	 H	 H	 H	 H	 H	 H	 H	 H	 H	 H
                 ##   1	 H	 H	 H	 H	 H	 H	 H	 H	 H	 H
