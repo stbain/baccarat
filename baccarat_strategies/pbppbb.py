@@ -32,6 +32,7 @@
 class PBPPBBStrategy:
     def __init__(self):
         self.pattern_position = 0
+        self.name = 'pbppbb'
 
     def get_bet_side(self):
         return 'P' if self.pattern_position in [0, 2, 3] else 'B'

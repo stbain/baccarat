@@ -5,6 +5,7 @@ class MartingaleProgression:
         self.base_bet = base_bet
         self.current_bet = base_bet
         self.consecutive_losses = 0
+        self.name = 'martingale'
 
     def get_bet(self):
         return self.current_bet
