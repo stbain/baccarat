@@ -1,7 +1,7 @@
 # Simulator to combine the following stratgies:
 # 
-# Baccarat Strategy: PBPPBB
-# Betting Strategy: Martingale
+#   -- Baccarat Strategy: PBPPBB
+#   -- Betting Strategy: Martingale
 #
 import os
 import csv
@@ -13,8 +13,6 @@ from unittest import result
 
 ### LOGGING SETUP ###
 # Create some log files for this simulation in the ./logs directory.
-# and the hands 
-# The other log will record the hexhash, the starting bankroll, and the ending bankroll of each shoe
 if not os.path.exists('./logs'):
     os.makedirs('./logs')
     print("Created ./logs directory")
@@ -40,6 +38,7 @@ else:
     shoe_log_writer = csv.writer(shoe_log_file)
 
 # Create ./logs/simulations.csv if it doesn't exist, otherwise open for appending
+# Format: hexhash, betting_strategy, pattern_strategy, starting_bankroll, ending_bankroll, highest_bankroll, lowest_bankroll, wins, losses, ties
 simulations_log_file_path = './logs/simulations.csv'
 simulations_log_file_exists = os.path.isfile(simulations_log_file_path)
 simulations_log_file = open(simulations_log_file_path, 'a', newline='')
@@ -156,7 +155,13 @@ for _ in range(num_shoes):
 
         # Log the hand to the hands.log
         # Format: hexhash, bet_side, bet_amount, result, my_bankroll
-        hands_log_writer.writerow([my_shoe.hexhash(), bet_side, bet_amount, my_result, f"{my_bankroll:.2f}", my_shoe_wins, my_shoe_losses, my_shoe_ties])
+        #
+        # NOTE: Unless you need full logging of each hand dealt, the recommendation
+        #       is to leave this commented out. You can expect around 1.2GB of log files
+        #       for every 100,000 shoes you deal.
+        #
+        # To enable hand logging, comment out the following line
+        # hands_log_writer.writerow([my_shoe.hexhash(), bet_side, bet_amount, my_result, f"{my_bankroll:.2f}", my_shoe_wins, my_shoe_losses, my_shoe_ties])
 
         combined_strategy.update(my_result)
         
